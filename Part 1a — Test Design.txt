@@ -1,0 +1,120 @@
+Part 1a — Test Design
+Task A: Test Scenarios (20)
+
+Legend: B = Boundary, N = Negative, R = Ranking/Sorting, D = Data correctness
+
+1. Cheaper by ₹1 (B)
+
+Preconditions: Selected total = ₹21,000. Candidate total = ₹20,999. Other attributes better. Steps: Run recommendation. Expected: Candidate included (strictly cheaper).
+
+2. Equal Price (B, N)
+
+Preconditions: Candidate total = ₹21,000 (equal). Steps: Run recommendation. Expected: Candidate excluded (must be <, not <=).
+
+3. Better Score by 0.01 (B)
+
+Preconditions: Candidate score = selected score + 0.01. Steps: Run recommendation. Expected: Candidate qualifies as better.
+
+4. Equal Score (B, N)
+
+Preconditions: Candidate score = selected score. Steps: Run recommendation. Expected: Candidate excluded.
+
+5. Distance Exactly 5 km (B)
+
+Preconditions: Candidate distance = 5.0 km. Steps: Run recommendation. Expected: Candidate included.
+
+6. Distance 5.01 km (B, N)
+
+Preconditions: Candidate distance = 5.01 km. Steps: Run recommendation. Expected: Candidate excluded.
+
+7. Sold-out Inventory (N)
+
+Preconditions: inventory_available = 0. Steps: Run recommendation. Expected: Candidate excluded.
+
+8. Inactive Hotel (N)
+
+Preconditions: hotel_status = inactive. Steps: Run recommendation. Expected: Candidate excluded.
+
+9. Same Hotel as Selected (N)
+
+Preconditions: Candidate hotel_id = selected hotel_id. Steps: Run recommendation. Expected: Excluded.
+
+10. Missing Review Score (N, D)
+
+Preconditions: review_score = null. Steps: Run recommendation. Expected: Clarified behavior applied (exclude or default value).
+
+11. Ranking by ScoreDelta (R)
+
+Preconditions: Two candidates with different ScoreDelta. Steps: Run ranking. Expected: Higher ScoreDelta ranks first.
+
+12. Tie ScoreDelta → Lower Price (R)
+
+Preconditions: Same ScoreDelta, different total_price. Steps: Run ranking. Expected: Lower total_price ranks higher.
+
+13. Tie Score & Price → Distance (R)
+
+Preconditions: Same ScoreDelta & price, different distance. Steps: Run ranking. Expected: Lower distance ranks higher.
+
+14. Tie All Above → Review Count (R)
+
+Preconditions: Same score, price, distance. Steps: Run ranking. Expected: Higher review_count ranks higher.
+
+15. Currency Conversion (D)
+
+Preconditions: Candidate price in USD. Steps: Convert to INR using defined rate. Expected: Correct conversion before comparison.
+
+16. Nightly vs Total Price Mismatch (D)
+
+Preconditions: Nightly × nights ≠ total. Steps: Validate pricing. Expected: Error logged or candidate excluded.
+
+17. Stale Inventory (D)
+
+Preconditions: inventory last updated > allowed threshold. Steps: Run recommendation. Expected: Candidate excluded or refreshed.
+
+18. Amenity Match Calculation (D)
+
+Preconditions: Partial amenity overlap. Steps: Calculate amenity_match_percent. Expected: Correct percentage used in score.
+
+19. Exactly 10 Qualified Hotels (B)
+
+Preconditions: Exactly 10 valid candidates. Steps: Run recommendation. Expected: All 10 returned.
+
+20. More Than 10 Qualified Hotels (B)
+
+Preconditions: 15 valid candidates. Steps: Run recommendation. Expected: Only top 10 returned based on ranking.
+
+Task B — Clarifying Questions (8)
+
+How should hotels with missing review scores be handled?
+
+What currency conversion source and rounding rule should be used?
+
+Is amenity_match_percent based on selected hotel amenities only?
+
+How fresh must inventory data be to be considered valid?
+
+How are ties handled if all ranking fields match exactly?
+
+Are locality and distance rules OR or AND?
+
+Should taxes/fees be included in total_price comparison?
+
+What is the minimum review_count to consider a rating reliable?
+
+Part 1b — Bugs in Given Recommendations
+
+Rank 3: Distance = 5.8 km (> 5 km) → should be excluded.
+
+Rank 4: Review score 10.8 is invalid (max 10).
+
+Rank 5: Total ₹22,400 is more expensive than selected.
+
+Rank 6: Price shown in USD, currency mismatch.
+
+Rank 7: 3★ hotel likely not better by score.
+
+Rank 9: Duplicate listing of Orbit Executive Stay.
+
+Rank 10: Selected hotel included (must be excluded).
+
+Ranking issue: Rank 2 (₹20,500) is more expensive than Rank 3 (₹19,300) despite worse distance.
